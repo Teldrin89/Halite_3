@@ -34,19 +34,29 @@ while True:
     # A command queue holds all the commands you will run this turn. You build this list up and submit it at the
     #   end of the turn.
     command_queue = []
+    # direction order list: move up, down, left, right or stand still
+    direction_order = [Direction.North, Direction.South, Direction.East, Direction.West, Direction.Still]
 
     for ship in me.get_ships():
         # Introduce choices for the given ship
-        choices = ship.position.get_surrounding_cardinals()
-        # Log info for turn 15
-        if game.turn_number == 15:
-            logging.info(choices)
+        position_options = ship.position.get_surrounding_cardinals() + [ship.position]
+        # create a position dictionary, will map movement to the map coordinates
+        position_dict = {}
+        # create a halite dictionary that will map the position with halite amount at that position
+        halite_dict = {}
+        for n, direction in enumerate(direction_order):
+            position_dict[direction] = position_options[n]
+
+        for direction in position_dict:
+            position = position_dict[direction]
+            halite_amount = game_map[position].halite_amount
+            halite_dict[direction] = halite_amount
+
         # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
         #   Else, collect halite.
         if game_map[ship.position].halite_amount < constants.MAX_HALITE / 10 or ship.is_full:
             command_queue.append(
-                ship.move(
-                    random.choice([Direction.North, Direction.South, Direction.East, Direction.West])))
+                ship.move(max(halite_dict, key=halite_dict.get)))
         else:
             command_queue.append(ship.stay_still())
 
