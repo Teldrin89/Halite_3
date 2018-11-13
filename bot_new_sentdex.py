@@ -22,7 +22,8 @@ game.ready("Teldrin89_Python_Bot")
 logging.info("Successfully created bot! My Player ID is {}.".format(game.my_id))
 
 """ <<<Game Loop>>> """
-
+# dictionary created outside of game loop
+ship_states = {}
 while True:
     # This loop handles each turn of the game. The game object changes every turn, and you refresh that state by
     #   running update_frame().
@@ -40,6 +41,10 @@ while True:
     position_choices = []
 
     for ship in me.get_ships():
+        # populate dictionary if ship is collecting
+        if ship.id not in ship_states:
+            ship_states[ship.id] = "collecting"
+
         # Introduce choices for the given ship
         position_options = ship.position.get_surrounding_cardinals() + [ship.position]
         # create a position dictionary, will map movement to the map coordinates
@@ -57,16 +62,26 @@ while True:
             else:
                 logging.info("attempting to move to the same spot\n")
 
-        # For each of your ships, move randomly if the ship is on a low halite location or the ship is full.
-        #   Else, collect halite.
-        if game_map[ship.position].halite_amount < constants.MAX_HALITE / 10 or ship.is_full:
-
+        # if loop to check if given ship has a "depositing" or "collecting" tag
+        if ship_states[ship.id] == "depositing":
+            # in case of depositing the ship has to move towards shipyard to drop halite
+            move = game_map.naive_navigate(ship, me.shipyard.position)
+            # add to position choices
+            position_choices.append(position_dict[move])
+            # add the move to command que
+            command_queue.append(ship.move(move))
+        elif ship_states[ship.id] == "collecting":
+            # checks if halite on the map is lower than 10% of max halite - it moves to location with more
+            # commented from previous version
+            # if game_map[ship.position].halite_amount < constants.MAX_HALITE / 10:
             directional_choice = max(halite_dict, key=halite_dict.get)
             position_choices.append(position_dict[directional_choice])
             command_queue.append(ship.move(directional_choice))
-        else:
-            position_choices.append(position_dict[Direction.Still])
-            command_queue.append(ship.stay_still())
+            # if the ship has more than a 1/3 of max capacity - this to avoid the bad collisions with enemy ship
+            # that could cause a whole max halite amount of ship lost
+            if ship.halite_amount > constants.MAX_HALITE / 2:
+                # change of ship tag to "depositing"
+                ship_states[ship.id] = "depositing"
 
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
