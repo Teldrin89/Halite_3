@@ -58,7 +58,10 @@ while True:
             position = position_dict[direction]
             halite_amount = game_map[position].halite_amount
             if position_dict[direction] not in position_choices:
-                halite_dict[direction] = halite_amount
+                if direction == Direction.Still:
+                    halite_dict[direction] = halite_amount * 3
+                else:
+                    halite_dict[direction] = halite_amount
             else:
                 logging.info("attempting to move to the same spot\n")
 
@@ -82,13 +85,13 @@ while True:
             command_queue.append(ship.move(game_map.naive_navigate(ship, position_dict[directional_choice])))
             # if the ship has more than a 1/3 of max capacity - this to avoid the bad collisions with enemy ship
             # that could cause a whole max halite amount of ship lost
-            if ship.halite_amount > constants.MAX_HALITE * 0.90:
+            if ship.halite_amount > constants.MAX_HALITE*0.95:
                 # change of ship tag to "depositing"
                 ship_states[ship.id] = "depositing"
 
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
-    if game.turn_number <= 200 and me.halite_amount >= constants.SHIP_COST and not game_map[me.shipyard].is_occupied:
+    if game.turn_number <= 150 and me.halite_amount >= constants.SHIP_COST and not game_map[me.shipyard].is_occupied:
         command_queue.append(me.shipyard.spawn())
 
     # Send your moves back to the game environment, ending this turn.
