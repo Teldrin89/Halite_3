@@ -48,8 +48,10 @@ while True:
         # Introduce choices for the given ship
         position_options = ship.position.get_surrounding_cardinals() + [ship.position]
         # create a position dictionary, will map movement to the map coordinates
+        # {(0,1) : (19,48)}
         position_dict = {}
         # create a halite dictionary that will map the position with halite amount at that position
+        # {(0,1) : 550}
         halite_dict = {}
         for n, direction in enumerate(direction_order):
             position_dict[direction] = position_options[n]
@@ -57,13 +59,16 @@ while True:
         for direction in position_dict:
             position = position_dict[direction]
             halite_amount = game_map[position].halite_amount
-            if position_dict[direction] not in position_choices:
-                if direction == Direction.Still:
-                    halite_dict[direction] = halite_amount * 3
+            if ship_states[ship.id] == "collecting" and position != me.shipyard.position:
+                if position_dict[direction] not in position_choices:
+                    if direction == Direction.Still:
+                        halite_dict[direction] = halite_amount * 3
+                    else:
+                        halite_dict[direction] = halite_amount
                 else:
-                    halite_dict[direction] = halite_amount
-            else:
-                logging.info("attempting to move to the same spot\n")
+                    if position == me.shipyard.position:
+                        halite_dict[direction] = 10000
+                        logging.info("attempting to move to the same spot\n")
 
         # if loop to check if given ship has a "depositing" or "collecting" tag
         if ship_states[ship.id] == "depositing":
