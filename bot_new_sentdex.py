@@ -55,10 +55,13 @@ while True:
         halite_dict = {}
         for n, direction in enumerate(direction_order):
             position_dict[direction] = position_options[n]
-
+        halite_sum = 0
+        n = 0
         for direction in position_dict:
             position = position_dict[direction]
             halite_amount = game_map[position].halite_amount
+            halite_sum = halite_sum + halite_amount
+            n += 1
             if ship_states[ship.id] == "collecting" and position != me.shipyard.position:
                 if position_dict[direction] not in position_choices:
                     if direction == Direction.Still:
@@ -68,7 +71,7 @@ while True:
                 else:
                     logging.info("attempting to move to the same spot\n")
             else:
-                halite_dict[direction] = halite_amount
+                halite_dict[direction] = halite_amount + random.randrange(1, 10, 1)
 
         # if loop to check if given ship has a "depositing" or "collecting" tag
         if ship_states[ship.id] == "depositing":
