@@ -104,7 +104,7 @@ while True:
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
 
-    if number_of_ships < 15:
+    if number_of_ships < 20:
         if game.turn_number <= 150 and me.halite_amount >= constants.SHIP_COST and not game_map[me.shipyard].is_occupied:
             command_queue.append(me.shipyard.spawn())
 
