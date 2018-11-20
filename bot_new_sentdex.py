@@ -66,9 +66,9 @@ while True:
                     else:
                         halite_dict[direction] = halite_amount
                 else:
-                    if position == me.shipyard.position:
-                        halite_dict[direction] = 10000
-                        logging.info("attempting to move to the same spot\n")
+                    logging.info("attempting to move to the same spot\n")
+            else:
+                halite_dict[direction] = halite_amount
 
         # if loop to check if given ship has a "depositing" or "collecting" tag
         if ship_states[ship.id] == "depositing":
