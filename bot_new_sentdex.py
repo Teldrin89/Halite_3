@@ -39,6 +39,12 @@ while True:
     direction_order = [Direction.North, Direction.South, Direction.East, Direction.West, Direction.Still]
     # added position choices that will contain a physical coordinate of a map - created to avoid ships crashing
     position_choices = []
+    # Created a dictionary that will contain all ships current positions
+    ships_positions = []
+    # Run for loop for all ships on map
+    for ship in me.get_ships():
+        # Populate the dictionary w key:value pair of ship id and ship position
+        ships_positions.append(ship.position)
 
     for ship in me.get_ships():
         # populate dictionary if ship is collecting
