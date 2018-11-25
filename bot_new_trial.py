@@ -89,7 +89,10 @@ while True:
         # if loop to check if given ship has a "depositing" or "collecting" tag
         if ship_states[ship.id] == "depositing":
             # in case of depositing the ship has to move towards shipyard to drop halite
-            move = game_map.naive_navigate(ship, me.shipyard.position)
+            if game.turn_number <= 250:
+                move = game_map.naive_navigate(ship, me.shipyard.position)
+            else:
+                move = not_naive_navigate(ship, me.shipyard.position)
             # add to position choices
             position_choices.append(position_dict[move])
             # add the move to command que
@@ -101,7 +104,10 @@ while True:
             # checks if halite on the map is lower than 10% of max halite - it moves to location with more
             directional_choice = max(halite_dict, key=halite_dict.get)
             position_choices.append(position_dict[directional_choice])
-            command_queue.append(ship.move(not_naive_navigate(ship, position_dict[directional_choice])))
+            if game.turn_number <= 250:
+                command_queue.append(ship.move(game_map.naive_navigate(ship, position_dict[directional_choice])))
+            else:
+                command_queue.append(ship.move(not_naive_navigate(ship, position_dict[directional_choice])))
             # if the ship has more than a 93% of max capacity - this to avoid the bad collisions with enemy ship
             # that could cause a whole max halite amount of ship lost
             if ship.halite_amount > constants.MAX_HALITE*0.92:
@@ -110,7 +116,7 @@ while True:
 
     # If the game is in the first 200 turns and you have enough halite, spawn a ship.
     # Don't spawn a ship if you currently have a ship at port, though - the ships will collide.
-    if game.turn_number <= 150 and me.halite_amount >= constants.SHIP_COST and not game_map[me.shipyard].is_occupied:
+    if game.turn_number <= 200 and me.halite_amount >= constants.SHIP_COST and not game_map[me.shipyard].is_occupied:
         command_queue.append(me.shipyard.spawn())
 
     # Send your moves back to the game environment, ending this turn.
