@@ -45,6 +45,7 @@ logging.info("Successfully created bot! My Player ID is {}.".format(game.my_id))
 """ <<<Game Loop>>> """
 # dictionary created outside of game loop
 ship_states = {}
+my_halite = []
 while True:
     # This loop handles each turn of the game. The game object changes every turn, and you refresh that state by
     #   running update_frame().
@@ -62,7 +63,7 @@ while True:
     direction_order = [Direction.North, Direction.South, Direction.East, Direction.West, Direction.Still]
     # added position choices that will contain a physical coordinate of a map - created to avoid ships crashing
     position_choices = []
-
+    my_halite.append(game.me.halite_amount)
     for ship in me.get_ships():
         # populate dictionary if ship is collecting
         if ship.id not in ship_states:
@@ -74,6 +75,8 @@ while True:
         position_dict = {}
         # create a halite dictionary that will map the position with halite amount at that position
         halite_dict = {}
+        # read amount of halite collected
+
         for n, direction in enumerate(direction_order):
             position_dict[direction] = position_options[n]
 
@@ -96,8 +99,14 @@ while True:
             # else:
             #     move = not_naive_navigate(ship, me.shipyard.position)
             move = game_map.naive_navigate(ship, me.shipyard.position)
-            for direction in position_dict:
-                if position_dict[direction] == me.shipyard.position and game.turn_number >= 300:
+            # for direction in position_dict:
+            #     if position_dict[direction] == me.shipyard.position and game.turn_number >= 300:
+            #         move = not_naive_navigate(ship, me.shipyard.position)
+            if game.turn_number >= 350:
+                if my_halite[int(game.turn_number)-1] - my_halite[int(game.turn_number)-2] != 0 \
+                        and game_map[me.shipyard].is_occupied:
+                    move = game_map.naive_navigate(ship, me.shipyard.position)
+                else:
                     move = not_naive_navigate(ship, me.shipyard.position)
             # add to position choices
             position_choices.append(position_dict[move])
@@ -110,10 +119,15 @@ while True:
             # checks if halite on the map is lower than 10% of max halite - it moves to location with more
             directional_choice = max(halite_dict, key=halite_dict.get)
             position_choices.append(position_dict[directional_choice])
-            if game.turn_number <= 250:
-                command_queue.append(ship.move(game_map.naive_navigate(ship, position_dict[directional_choice])))
-            else:
-                command_queue.append(ship.move(not_naive_navigate(ship, position_dict[directional_choice])))
+            command_queue.append(ship.move(game_map.naive_navigate(ship, position_dict[directional_choice])))
+
+            # if game.turn_number >= 250:
+            #     if my_halite[int(game.turn_number)-1] - my_halite[int(game.turn_number)-2] != 0:
+            #         command_queue.append(ship.move(game_map.naive_navigate(ship, position_dict[directional_choice])))
+            #     else:
+            #         command_queue.append(ship.move(not_naive_navigate(ship, position_dict[directional_choice])))
+            # else:
+            #     command_queue.append(ship.move(game_map.naive_navigate(ship, position_dict[directional_choice])))
             # if the ship has more than a 93% of max capacity - this to avoid the bad collisions with enemy ship
             # that could cause a whole max halite amount of ship lost
             if ship.halite_amount > constants.MAX_HALITE * 0.93:
