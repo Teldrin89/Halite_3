@@ -28,6 +28,10 @@ while True:
 
     # specify the order we know this all to be
     direction_order = [Direction.North, Direction.South, Direction.East, Direction.West, Direction.Still]
+    # information about dropoff and shipyard locations
+    dropoff_positions = [d.position for d in list(me.get_dropoffs()) + [me.shipyard]]
+    # information about positions of ships - to distinguish enemy and our ships
+    ship_positions = [s.position for s in list(me.get_ships())]
 
     for ship in me.get_ships():
         # use f-string for logging the ship position and relative position - modify by -3 and 3
@@ -37,10 +41,13 @@ while True:
         # 2nd f-string will produce the position of map cell (the relative one) and the amount of halite there
         logging.info(f'{game_map[ship.position + Position(-3,3)]}')
 
-        # decide on a size of square for getting coordinates around the ship
-        size = 12
-        # create an empty list for the surroundings coordinates
+        # decide on a size of square for getting coordinates around the ship - used 16 to use one of the
+        # popular ML models (requiring 32x32 grid)
+        size = 16
+        # create an empty list for the surroundings
         surroundings = []
+        # surroundings = [HALITE_AMOUNT, SHIP, DROPOFF, ...] - possibility for the additional properties to be added,
+        # for example turn number (to decide how to behave based on the time of game)
         # run a loop for 2 dimensions - x and y - in 4 directions
         for y in range(-1*size, size+1):
             # create a row list for single row coordinates
@@ -48,10 +55,27 @@ while True:
             # loop for 2nd coordinate
             for x in range(-1*size, size+1):
                 # print(x, y)
+                # marking one of the positions from 32x32 square being checked
+                current_cell = game_map[ship.position + Position(x, y)]
+                # check if in given position there is our dropoff/shipyard
+                if current_cell.position in dropoff_positions:
+                    # if yes then variable is equal to 1
+                    drop_friend_foe = 1
+                else:
+                    # if it is the enemy dropoff/shipyard variable is equal to -1
+                    drop_friend_foe = -1
+                # check if the current position is occupied by our or enemy ship
+                if current_cell.position in ship_positions:
+                    ship_friend_foe = 1
+                else:
+                    ship_friend_foe = -1
+
+                # todo: finished @12:00 in video p2
                 # append each row
                 row.append([x, y])
             # append the surroundings with each row
             surroundings.append(row)
+
         # shift the ship always north to check how it will behave at the edge and crossing the edge of map
         command_queue.append(ship.move(Direction.North))
 
