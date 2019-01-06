@@ -6,6 +6,7 @@ from hlt import constants  # halite constants
 from hlt.positionals import Direction  # helper for moving
 from hlt.positionals import Position  # helper for moving
 import logging  # logging stuff to console
+import numpy as np
 
 game = hlt.Game()  # game object
 # Initializes the game
@@ -102,6 +103,8 @@ while True:
         if game.turn_number == 5:
             with open("test.txt", "w") as f:
                 f.write(str(surroundings))
+        # using the numpy library save all turns surroundings (with ships) for each ship as numpy file
+        np.save(f'game_play/{game.turn_number}.npy', surroundings)
 
         # shift the ship always north to check how it will behave at the edge and crossing the edge of map
         command_queue.append(ship.move(Direction.North))
