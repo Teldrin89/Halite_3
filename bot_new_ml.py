@@ -69,12 +69,39 @@ while True:
                     ship_friend_foe = 1
                 else:
                     ship_friend_foe = -1
+                # get the halite amount from given cell, divide it by MAX_HALITE (to work with smaller numbers)
+                halite = round(current_cell.halite_amount/constants.MAX_HALITE, 2)
 
-                # todo: finished @12:00 in video p2
+                # get a current cell ship and structure (if there is one)
+                a_ship = current_cell.ship
+                a_structure = current_cell.structure
+
+                # check for the halite, ship and structure - if it is not in given cell set to 0
+                if halite is None:
+                    halite = 0
+                if a_ship is None:
+                    a_ship = 0
+                else:
+                    # if there is a ship get the ship halite amount divided by max and rounded to 2 decimal places
+                    # the value will be positive for our ship and negative for enemy ship
+                    a_ship = round(ship_friend_foe * (a_ship.halite_amount/constants.MAX_HALITE), 2)
+
+                if a_structure is None:
+                    a_structure = 0
+                else:
+                    # if there is a structure in given cell check if it is our dropoff/shipyard
+                    a_structure = drop_friend_foe
+
+                amounts = (halite, a_ship, a_structure)
+
                 # append each row
-                row.append([x, y])
+                row.append(amounts)
             # append the surroundings with each row
             surroundings.append(row)
+
+        if game.turn_number == 5:
+            with open("test.txt", "w") as f:
+                f.write(str(surroundings))
 
         # shift the ship always north to check how it will behave at the edge and crossing the edge of map
         command_queue.append(ship.move(Direction.North))
