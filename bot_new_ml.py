@@ -108,6 +108,7 @@ while True:
 
         # shift the ship always north to check how it will behave at the edge and crossing the edge of map
         command_queue.append(ship.move(Direction.North))
+        # todo: finished part 2
 
     # if there is less than 1 ship, create one
     if len(me.get_ships()) < 1:
