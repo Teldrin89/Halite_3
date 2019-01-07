@@ -1,6 +1,8 @@
 # A machine learning bot in python for Halite 3 competition:
 # - using the convolutional neural network (evolution learning)
 # - the AI will control the movement and decision of either collecting or depositing for each ship
+# - the evolutionary model has been ditched for this type of bot as this game is not "to be won-completed" but to
+#   get the highest number of collected halite
 import hlt  # main halite stuff
 from hlt import constants  # halite constants
 from hlt.positionals import Direction  # helper for moving
@@ -13,6 +15,15 @@ game = hlt.Game()  # game object
 # Initializes the game
 game.ready("Teldrin89_Python_Bot")
 
+# the bot never knows when the game is going to end but the number of turns is determined by the size of map
+map_settings = {
+    32: 400,
+    40: 425,
+    48: 450,
+    56: 475,
+    64: 500
+}
+# todo: finished @4:00 in part 3 of ML series
 while True:
     # This loop handles each turn of the game. The game object changes every turn, and you refresh that state by
     game.update_frame()
