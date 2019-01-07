@@ -7,6 +7,7 @@ from hlt.positionals import Direction  # helper for moving
 from hlt.positionals import Position  # helper for moving
 import logging  # logging stuff to console
 import numpy as np
+import secrets
 
 game = hlt.Game()  # game object
 # Initializes the game
@@ -106,9 +107,8 @@ while True:
         # using the numpy library save all turns surroundings (with ships) for each ship as numpy file
         np.save(f'game_play/{game.turn_number}.npy', surroundings)
 
-        # shift the ship always north to check how it will behave at the edge and crossing the edge of map
-        command_queue.append(ship.move(Direction.North))
-        # todo: finished part 2
+        # imported secrets library and used its random direction order for the test of ship movement
+        command_queue.append(ship.move(secrets.choice(direction_order)))
 
     # if there is less than 1 ship, create one
     if len(me.get_ships()) < 1:
