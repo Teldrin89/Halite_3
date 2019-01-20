@@ -10,6 +10,7 @@ from hlt.positionals import Position  # helper for moving
 import logging  # logging stuff to console
 import numpy as np
 import secrets
+import time
 
 game = hlt.Game()  # game object
 # Initializes the game
@@ -23,7 +24,14 @@ map_settings = {
     56: 475,
     64: 500
 }
-# todo: finished @4:00 in part 3 of ML series
+# specify number of general properties for running several games for dataset for training
+# specify number of ships
+MAX_SHIPS = 1
+# specify max threshold for halite collected - we start with 5000, so to see some increase after ship spawn
+SAVE_THRESHOLD = 4001
+# specify max number of turns - in order for the model to learn it has to be limited to reduce the noise in learning
+TOTAL_TURNS = 50
+
 while True:
     # This loop handles each turn of the game. The game object changes every turn, and you refresh that state by
     game.update_frame()
@@ -116,16 +124,22 @@ while True:
             with open("test.txt", "w") as f:
                 f.write(str(surroundings))
         # using the numpy library save all turns surroundings (with ships) for each ship as numpy file
-        np.save(f'game_play/{game.turn_number}.npy', surroundings)
+        # np.save(f'game_play/{game.turn_number}.npy', surroundings) # save in later part
 
         # imported secrets library and used its random direction order for the test of ship movement
         command_queue.append(ship.move(secrets.choice(direction_order)))
 
-    # if there is less than 1 ship, create one
-    if len(me.get_ships()) < 1:
+    # if there is less than max ships, create one
+    if len(me.get_ships()) < MAX_SHIPS:
         # ship costs 1000, don't make a ship on a ship or they both sink
         if me.halite_amount >= constants.SHIP_COST and not game_map[me.shipyard].is_occupied:
             command_queue.append(me.shipyard.spawn())
 
+    # save the game when total turns limit is met
+    if game.turn_number == TOTAL_TURNS:
+        # save in case of meeting the threshold limit
+        if me.halite_amount >= SAVE_THRESHOLD:
+            # save the game
+            np.save(f'training_data/{me.halite_amount}-{int(time.time()*1000)}.npy', surroundings)
     # Send your moves back to the game environment, ending this turn.
     game.end_turn(command_queue)
