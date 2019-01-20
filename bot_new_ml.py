@@ -28,7 +28,7 @@ map_settings = {
 # specify number of ships
 MAX_SHIPS = 1
 # specify max threshold for halite collected - we start with 5000, so to see some increase after ship spawn
-SAVE_THRESHOLD = 4001
+SAVE_THRESHOLD = 4100
 # specify max number of turns - in order for the model to learn it has to be limited to reduce the noise in learning
 TOTAL_TURNS = 50
 
